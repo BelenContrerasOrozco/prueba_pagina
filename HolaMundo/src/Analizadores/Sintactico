@@ -1,0 +1,323 @@
+/*
+ * PROYECTO 1 - COMPI 1
+ * VICTOR ALEJANDRO CUCHES DE LEON
+ * 201807307
+ */
+
+package AnalizadoresFCA; 
+
+import java_cup.runtime.*;
+
+parser code 
+{:
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/ 
+    public void syntax_error(Symbol s){ 
+        System.out.println("Error Sintáctico en la Línea " + (s.left) +
+        " Columna "+s.right+ ". No se esperaba este componente: " +s.value+"."); 
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (s.left)+ " Columna "+s.right+". Componente " + s.value + 
+        " no reconocido."); 
+    }  
+:} 
+
+
+terminal String llarriba, llacerrado, carriba, cocerrado, parriba, pacerrado;
+terminal String PTcoma, dospunt, coma, sigdolar;
+terminal String genrepo;
+terminal String comparar, defglob;
+terminal String idclave, palabra, doub, igual, dec, ente;
+terminal String grabarra, TITULO, ejex, value, TITULOX, TITULOY;
+terminal String grapie, graline, file;
+terminal String conjunto, scoresp;
+
+non terminal inicio;
+non terminal INSTRUCC, CAPACI;
+non terminal CONTENI, CONTROLARCHI, PUNTEOARCHI;
+non terminal VARIABLES, DECLARAR;
+non terminal CONBARRA, ELEMENTOBARRRA, listaejex, listaejexx, listaval, listavall;
+non terminal caracpie, elementpie;
+non terminal caraclin, elementlin;
+
+start with inicio; 
+
+inicio ::=  INSTRUCC 
+| error INSTRUCC
+| error
+;
+
+INSTRUCC ::= genrepo llarriba CONTENI llacerrado INSTRUCC  
+| genrepo:a llarriba:b CONTENI llacerrado:c 
+{:saveToken("gerepes",String.valueOf(aleft), String.valueOf(aright));
+saveToken("lla",String.valueOf(bleft), String.valueOf(bright));
+saveToken("llac",String.valueOf(cleft), String.valueOf(cright));:} 
+| error llacerrado
+;
+
+CONTENI ::= CONTENI CAPACI
+| CAPACI
+;
+
+CAPACI ::= defglob:a llarriba:b DECLARAR llacerrado:c 
+{:saveToken("defglo",String.valueOf(aleft), String.valueOf(aright));
+saveToken("lla",String.valueOf(bleft), String.valueOf(bright));
+saveToken("llac",String.valueOf(cleft), String.valueOf(cright));
+:} 
+| comparar:a parriba:b CONTROLARCHI pacerrado:c PTcoma:d 
+{:saveRutas();
+saveToken("compare",String.valueOf(aleft), String.valueOf(aright));
+saveToken("para",String.valueOf(bleft), String.valueOf(bright));
+saveToken("parc",String.valueOf(cleft), String.valueOf(cright));
+saveToken("ptc",String.valueOf(dleft), String.valueOf(dright));
+:} 
+| grabarra:a llarriba:b CONBARRA llacerrado:c 
+{:saveBarras();
+saveToken("grafba",String.valueOf(aleft), String.valueOf(aright));
+saveToken("lla",String.valueOf(bleft), String.valueOf(bright));
+saveToken("llac",String.valueOf(cleft), String.valueOf(cright));
+:}
+| grapie:a llarriba:b caracpie llacerrado:c 
+{:savePie();
+saveToken("grafpie",String.valueOf(aleft), String.valueOf(aright));
+saveToken("lla",String.valueOf(bleft), String.valueOf(bright));
+saveToken("llac",String.valueOf(cleft), String.valueOf(cright));
+:}
+| graline:a llarriba:b caraclin llacerrado:c 
+{:saveLineas();
+saveToken("graflin",String.valueOf(aleft), String.valueOf(aright));
+saveToken("lla",String.valueOf(bleft), String.valueOf(bright));
+saveToken("llac",String.valueOf(cleft), String.valueOf(cright));
+:}
+| error llacerrado
+| error PTcoma
+;
+
+CONTROLARCHI ::= conjunto:a coma:c conjunto:b
+{: ruta1=a; ruta2=b;
+saveToken("coma",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("root",a.toString(),String.valueOf(aleft), String.valueOf(aright));
+saveToken2("root",b.toString(),String.valueOf(bleft), String.valueOf(bright));
+:}
+| error pacerrado
+;
+
+DECLARAR ::= DECLARAR VARIABLES
+| VARIABLES
+;
+
+VARIABLES ::= palabra:type idclave:id igual:a conjunto:vali PTcoma:b 
+{:RESULT = listaVariables.add(new VariablesGlo(type,id,vali));
+saveToken("stri",String.valueOf(typeleft), String.valueOf(typeright));
+saveToken2("ident",id.toString(),String.valueOf(idleft), String.valueOf(idright));
+saveToken("igual",String.valueOf(aleft), String.valueOf(aright));
+saveToken2("caden",vali.toString(),String.valueOf(valileft), String.valueOf(valiright));
+saveToken("ptc",String.valueOf(bleft), String.valueOf(bright));
+:}
+|  doub:type idclave:id igual:a dec:vali PTcoma:b 
+{:RESULT = listaVariables.add(new VariablesGlo(type,id,vali));
+saveToken("doub",String.valueOf(typeleft), String.valueOf(typeright));
+saveToken2("ident",id.toString(),String.valueOf(idleft), String.valueOf(idright));
+saveToken("igual",String.valueOf(aleft), String.valueOf(aright));
+saveToken2("deci",vali.toString(),String.valueOf(valileft), String.valueOf(valiright));
+saveToken("ptc",String.valueOf(bleft), String.valueOf(bright));
+:}
+|  doub:type idclave:id igual:a ente:vali PTcoma:b 
+{:RESULT = listaVariables.add(new VariablesGlo(type,id,vali));
+saveToken("doub",String.valueOf(typeleft), String.valueOf(typeright));
+saveToken2("ident",id.toString(),String.valueOf(idleft), String.valueOf(idright));
+saveToken("igual",String.valueOf(aleft), String.valueOf(aright));
+saveToken2("ent",vali.toString(),String.valueOf(valileft), String.valueOf(valiright));
+saveToken("ptc",String.valueOf(bleft), String.valueOf(bright));
+:}
+|  doub:type idclave:id igual:a PUNTEOARCHI PTcoma:b
+{:
+saveToken2("ident",id.toString(),String.valueOf(idleft), String.valueOf(idright));
+saveToken("igual",String.valueOf(aleft), String.valueOf(aright));
+saveToken("ptc",String.valueOf(bleft), String.valueOf(bright));
+:}
+| error PTcoma
+;
+
+PUNTEOARCHI ::= sigdolar:a llarriba:b scoresp:c coma:d conjunto:e coma:f conjunto:g coma:h conjunto:i  llacerrado:j
+| error llacerrado
+;
+
+CONBARRA ::= CONBARRA ELEMENTOBARRRA
+| ELEMENTOBARRRA
+;
+
+ELEMENTOBARRRA ::= TITULO:a dospunt:b conjunto:title PTcoma:c  
+{:titu = title;
+saveToken("titul",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("caden",title.toString(),String.valueOf(titleleft), String.valueOf(titleright));
+:}
+| TITULO:a dospunt:b idclave:title PTcoma:c
+{:titu = title;
+saveToken("titul",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("caden",title.toString(),String.valueOf(titleleft), String.valueOf(titleright));
+:}                       
+| ejex:a dospunt:b carriba:c listaejex cocerrado:d PTcoma:e 
+{:saveToken("ejex",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("cora",String.valueOf(cleft), String.valueOf(cright));
+saveToken("corc",String.valueOf(dleft), String.valueOf(dright));
+saveToken("ptc",String.valueOf(eleft), String.valueOf(eright));
+:}
+| value:a dospunt:b carriba:c listaval cocerrado:d PTcoma:e
+{:saveToken("vals",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("cora",String.valueOf(cleft), String.valueOf(cright));
+saveToken("corc",String.valueOf(dleft), String.valueOf(dright));
+saveToken("ptc",String.valueOf(eleft), String.valueOf(eright));
+:}
+| TITULOX:a dospunt:b conjunto:titlex PTcoma:c 
+{:titux = titlex;
+saveToken("titulx",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken2("caden",titlex.toString(),String.valueOf(titlexleft), String.valueOf(titlexright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+:}
+
+| TITULOX:a dospunt:b idclave:titlex PTcoma:c 
+{:titux = titlex;
+saveToken("titulx",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken2("ident",titlex.toString(),String.valueOf(titlexleft), String.valueOf(titlexright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+:}
+| TITULOY:a dospunt:b conjunto:titley PTcoma:c 
+{:tituy = titley;
+saveToken("tituly",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken2("caden",titley.toString(),String.valueOf(titleyleft), String.valueOf(titleyright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+:}
+| TITULOY:a dospunt:b idclave:titley PTcoma:c 
+{:tituy = titley;
+saveToken("tituly",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken2("ident",titley.toString(),String.valueOf(titleyleft), String.valueOf(titleyright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+:}
+| error PTcoma
+;
+
+listaejex ::= listaejex coma listaejexx
+| listaejexx 
+;
+
+listaejexx ::= idclave:val 
+{:listejex.add(val);
+saveToken2("ident",val.toString(),String.valueOf(valleft), String.valueOf(valright));
+:}
+| conjunto:val 
+{:listejex.add(val);
+saveToken2("caden",val.toString(),String.valueOf(valleft), String.valueOf(valright));
+:}
+| error pacerrado
+;
+
+listaval ::= listaval coma listavall
+| listavall
+;
+
+listavall ::= idclave:val2 
+{:listval.add(val2);
+saveToken2("ident",val2.toString(),String.valueOf(val2left), String.valueOf(val2right));
+:}  
+| dec:val2 
+{:listval.add(val2);
+saveToken2("deci",val2.toString(),String.valueOf(val2left), String.valueOf(val2right));
+:} 
+| ente:val2 
+{:listval.add(val2);
+saveToken2("ent",val2.toString(),String.valueOf(val2left), String.valueOf(val2right));
+:}  
+| conjunto:val2 
+{:listval.add(val2);
+saveToken2("caden",val2.toString(),String.valueOf(val2left), String.valueOf(val2right));
+:} 
+| error PTcoma
+;
+
+caracpie ::= caracpie elementpie
+| elementpie
+;
+
+elementpie ::= TITULO:a dospunt:b conjunto:title PTcoma:c 
+{:titu = title;
+saveToken("titul",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("caden",title.toString(),String.valueOf(titleleft), String.valueOf(titleright));
+:}
+| TITULO:a dospunt:b idclave:title PTcoma:c 
+{:titu = title;
+saveToken("titul",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("ident",title.toString(),String.valueOf(titleleft), String.valueOf(titleright));
+:}
+| ejex:a dospunt:b carriba:c listaejex cocerrado:d PTcoma:e
+{:saveToken("ejex",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("cora",String.valueOf(cleft), String.valueOf(cright));
+saveToken("corc",String.valueOf(dleft), String.valueOf(dright));
+saveToken("ptc",String.valueOf(eleft), String.valueOf(eright));
+:}
+| value:a dospunt:b carriba:c listaval cocerrado:d PTcoma:e
+{:saveToken("vals",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("cora",String.valueOf(cleft), String.valueOf(cright));
+saveToken("corc",String.valueOf(dleft), String.valueOf(dright));
+saveToken("ptc",String.valueOf(eleft), String.valueOf(eright));
+:}
+| error PTcoma
+;
+
+caraclin ::= caraclin elementlin
+| elementlin
+;
+
+elementlin ::= TITULO:a dospunt:b conjunto:title PTcoma:c 
+{:titu = title;
+saveToken("titul",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("caden",title.toString(),String.valueOf(titleleft), String.valueOf(titleright));
+:}
+| TITULO:a dospunt:b idclave:title PTcoma:c 
+{:titu = title;
+saveToken("titul",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("ident",title.toString(),String.valueOf(titleleft), String.valueOf(titleright));
+:}
+| file:a dospunt:b conjunto:archi PTcoma:c 
+{:file = archi;
+saveToken("arch",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("caden",archi.toString(),String.valueOf(archileft), String.valueOf(archiright));
+:}
+| file:a dospunt:b idclave:archi PTcoma:c 
+{:file = archi;
+saveToken("arch",String.valueOf(aleft), String.valueOf(aright));
+saveToken("dpt",String.valueOf(bleft), String.valueOf(bright));
+saveToken("ptc",String.valueOf(cleft), String.valueOf(cright));
+saveToken2("ident",archi.toString(),String.valueOf(archileft), String.valueOf(archiright));
+:}
+| error PTcoma
+;

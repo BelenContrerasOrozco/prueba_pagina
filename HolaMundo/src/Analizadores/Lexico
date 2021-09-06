@@ -1,0 +1,90 @@
+/*
+ 
+ */
+
+package Analizadores;
+import java_cup.runtime.Symbol; 
+
+
+%% 
+%class Lexico
+%public 
+%line 
+%char 
+%cup 
+%unicode
+%ignorecase
+
+%init{ 
+    yyline = 1; 
+    yychar = 1; 
+%init} 
+
+ESPACIOS=[ \r\t]+
+NUMS=[0-9]+
+NUMSDEC=[0-9]+("."[  |0-9]+)?
+
+CLAVE = [A-Za-z_]+[_0-9A-Za-z]*
+COMLINE = ("##".*\r\n+)|("##".*\n+)|("##".*\r+)
+COMLINES = "#*""/"*([^*/]|[^*]"/"|"*"[^/])*"*"*"*#"
+
+CONT = "\""[^\"]*"\""
+
+
+
+%%
+
+"(" {return new Symbol(sym.parriba,yyline,yychar, yytext());} 
+")" {return new Symbol(sym.pacerrado,yyline,yychar, yytext());} 
+"{" {return new Symbol(sym.llarriba,yyline,yychar, yytext());} 
+"}" {return new Symbol(sym.llacerrado,yyline,yychar, yytext());} 
+"[" {return new Symbol(sym.carriba,yyline,yychar, yytext());} 
+"]" {return new Symbol(sym.cocerrado,yyline,yychar, yytext());} 
+
+"," {return new Symbol(sym.coma,yyline,yychar, yytext()); } 
+":" {return new Symbol(sym.dospunt,yyline,yychar, yytext());} 
+";" {return new Symbol(sym.puntocoma,yyline,yychar, yytext());} 
+"=" {return new Symbol(sym.igual,yyline,yychar, yytext());} 
+"$" {return new Symbol(sym.sigdolar,yyline,yychar, yytext());} 
+
+
+"GenerarReporteEstadistico" {return new Symbol(sym.genrepo,yyline,yychar, yytext());}
+"compare" {return new Symbol(sym.comparar,yyline,yychar, yytext());}
+"definirglobales" {return new Symbol(sym.defglob,yyline,yychar, yytext());}
+
+"graficabarras" {return new Symbol(sym.grabarra,yyline,yychar, yytext());}
+"graficapie" {return new Symbol(sym.grapie,yyline,yychar, yytext());}
+"graficalineas" {return new Symbol(sym.graline,yyline,yychar, yytext());}
+"titulo" {return new Symbol(sym.titulo,yyline,yychar, yytext());}
+"ejex" {return new Symbol(sym.ejex,yyline,yychar, yytext());}
+"valores" {return new Symbol(sym.value,yyline,yychar, yytext());}
+"titulox" {return new Symbol(sym.tituhor,yyline,yychar, yytext());}
+"tituloy" {return new Symbol(sym.tituver,yyline,yychar, yytext());}
+"archivo" {return new Symbol(sym.file,yyline,yychar, yytext());}
+"puntajeespecifico" {return new Symbol(sym.scoresp,yyline,yychar, yytext());}
+
+"string" {return new Symbol(sym.palabra,yyline,yychar, yytext());}
+"double" {return new Symbol(sym.doub,yyline,yychar, yytext());}
+
+
+\n {yychar=1;}
+
+{ESPACIOS} {} 
+{COMLINE} {}
+{COMLINES} {}
+
+
+{CLAVE} {return new Symbol(sym.idclave,yyline,yychar, yytext());}
+{CONT} {return new Symbol(sym.conjunto,yyline,yychar, yytext());}
+{NUMBS} {return new Symbol(sym.ente,yyline,yychar, yytext());}
+{NUMSDEC} {return new Symbol(sym.dec,yyline,yychar, yytext());}
+
+
+
+. {
+    System.out.println("Este es un error lexico: "+yytext()+
+    ", en la linea: "+yyline+", en la columna: "+yychar);
+    
+   
+}
+
