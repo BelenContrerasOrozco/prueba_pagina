@@ -1,0 +1,180 @@
+
+/*
+ * PROYECTO 1 - COMPI 1
+ */
+
+package AnalizadoresDos;
+import java_cup.runtime.Symbol; 
+package Analizadores;
+import java_cup.runtime.Symbol; 
+import Reportes.*;
+import static Pantallas.main.tokens;
+
+
+%% 
+%class LexicoJS
+%public 
+%line 
+%char 
+%cup 
+%unicode
+%ignorecase
+
+%init{ 
+    yyline = 1; 
+    yychar = 1; 
+%init} 
+%{
+
+    public String archivo_name = Interfaz.PrincipalW.flagJS;
+
+%}
+
+BLANCOS=[ \r\t]+
+D=[0-9]+
+DD=[0-9]+("."[  |0-9]+)?
+IDEN = [A-Za-z_]+[_0-9A-Za-z]*
+CADEN = "\""[^\"]*"\""
+COMENTLINEA = (\/\/.*)
+COMENTMULTI = "/*""/"*([^*/]|[^*]"/"|"*"[^/])*"*"*"*/"
+
+%%
+
+
+
+":" {tokens.add(new TokensR(yytext(), "_dospuntos", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA"));
+return new Symbol(sym.dospun,yyline,yychar, yytext());} 
+
+";" {tokens.add(new TokensR(yytext(), "_puntcoma", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA"));
+return new Symbol(sym.puntocom,yyline,yychar, yytext());} 
+
+"(" {tokens.add(new TokensR(yytext(), "_parentesisab", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.parabierto,yyline,yychar, yytext());} 
+
+")" {tokens.add(new TokensR(yytext(), "_parentesiscer", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.parcerrado,yyline,yychar, yytext());}
+ 
+"{" {tokens.add(new TokensR(yytext(), "_llavabierta", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.llaveab,yyline,yychar, yytext());} 
+
+"}" {tokens.add(new TokensR(yytext(), "_llavecerrada", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.llavecer,yyline,yychar, yytext());} 
+
+"," {tokens.add(new TokensR(yytext(), "_coma", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.coma,yyline,yychar, yytext());}
+
+"." {tokens.add(new TokensR(yytext(), "_punto", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.punto,yyline,yychar, yytext());} 
+
+"+" {tokens.add(new TokensR(yytext(), "_sigmas", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.sigmas,yyline,yychar, yytext());} 
+
+"-" {tokens.add(new TokensR(yytext(), "_sigmenos", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.sigmenos,yyline,yychar, yytext());}
+ 
+"*" {tokens.add(new TokensR(yytext(), "_aster", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.asterisco,yyline,yychar, yytext());} 
+
+"/" {tokens.add(new TokensR(yytext(), "_division", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.division,yyline,yychar, yytext());} 
+
+"%" {tokens.add(new TokensR(yytext(), "_pocentaje", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.porcentaje,yyline,yychar, yytext());} 
+
+
+">" {tokens.add(new TokensR(yytext(), "_mayorque", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.mayorq,yyline,yychar, yytext());} 
+
+"<" {tokens.add(new TokensR(yytext(), "_menorque", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.menorq,yyline,yychar, yytext());} 
+
+"!" {tokens.add(new TokensR(yytext(), "_admiracion", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.admiracion,yyline,yychar, yytext());}
+
+"&" {tokens.add(new TokensR(yytext(), "_and", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.simband,yyline,yychar, yytext());}
+
+"|" {tokens.add(new TokensR(yytext(), "_or", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.or,yyline,yychar, yytext());}
+
+"=" {tokens.add(new TokensR(yytext(), "signigual", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.signigual,yyline,yychar, yytext());} 
+
+\n {yychar=1;}
+
+"class" {tokens.add(new TokensR(yytext(), "_clase", String.valueOf(yyline), String.valueOf(yychar),"archivo FCA")); 
+return new Symbol(sym.clase,yyline,yychar, yytext());} 
+
+"var" {tokens.add(new TokensR(yytext(), "_var", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.var,yyline,yychar, yytext());}
+
+"let" {tokens.add(new TokensR(yytext(), "_let", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.lett,yyline,yychar, yytext());}
+
+"const" {tokens.add(new TokensR(yytext(), "_contant", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.constant,yyline,yychar, yytext());}
+
+"true" {tokens.add(new TokensR(yytext(), "_true", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.truee,yyline,yychar, yytext());}
+
+"false" {tokens.add(new TokensR(yytext(), "_false", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.falsee,yyline,yychar, yytext());}
+
+"if" {tokens.add(new TokensR(yytext(), "_if", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.if,yyline,yychar, yytext());}
+
+"else" {tokens.add(new TokensR(yytext(), "_else", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.else,yyline,yychar, yytext());}
+
+"for" {tokens.add(new TokensR(yytext(), "_for", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.for,yyline,yychar, yytext());}
+
+"while" {tokens.add(new TokensR(yytext(), "_while", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.while,yyline,yychar, yytext());}
+
+"do" {tokens.add(new TokensR(yytext(), "_do", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.doo,yyline,yychar, yytext());}
+
+"switch" {tokens.add(new TokensR(yytext(), "_switch", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.swit,yyline,yychar, yytext());}
+
+"case" {tokens.add(new TokensR(yytext(), "_case", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.casee,yyline,yychar, yytext());}
+
+"default" {tokens.add(new TokensR(yytext(), "_default", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.defecto,yyline,yychar, yytext());}
+
+"break" {tokens.add(new TokensR(yytext(), "_break", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.salto,yyline,yychar, yytext());}
+
+"console" {tokens.add(new TokensR(yytext(), "_console", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.consola,yyline,yychar, yytext());}
+
+"log" {tokens.add(new TokensR(yytext(), "_log", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.logg,yyline,yychar, yytext());}
+
+"require" {tokens.add(new TokensR(yytext(), "_require", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.requeri,yyline,yychar, yytext());}
+
+{BLANCOS} {} 
+{IDEN} {tokens.add(new TokensR(yytext(), "_iden", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.identi,yyline,yychar, yytext());}
+
+{CADEN} {tokens.add(new TokensR(yytext(), "_cadena", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.cade,yyline,yychar, yytext());}
+
+{D} {tokens.add(new TokensR(yytext(), "_entero", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.numentero,yyline,yychar, yytext());}
+
+{DD} {tokens.add(new TokensR(yytext(), "_decimal", String.valueOf(yyline), String.valueOf(yychar), "archivo FCA")); 
+return new Symbol(sym.decim,yyline,yychar, yytext());}
+
+{COMENTLINEA} {return new Symbol(sym.COMENTUNO,yyline,yychar, yytext());}
+{COMENTMULTI} {return new Symbol(sym.COMENTMUL,yyline,yychar, yytext());}
+
+
+. {
+    System.out.println("Este es un error lexico: "+yytext()+
+    ", en la linea: "+yyline+", en la columna: "+yychar);
+Interfaz.PrincipalW.listaError.add(new ErroresF(yytext().toString(),"Error Lexico: Simbolo no reconocido",String.valueOf(yyline), String.valueOf(yychar), "archivo FCA"));
+}

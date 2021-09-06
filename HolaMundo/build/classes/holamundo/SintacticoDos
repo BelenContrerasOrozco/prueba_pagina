@@ -1,0 +1,320 @@
+/*
+ * PROYECTO 1 - COMPI 1
+ */
+
+package AnalizadoresDos; 
+import java_cup.runtime.*;
+package Analizadores; 
+import java_cup.runtime.*;
+import Reportes.*;
+import Pantallas.*;
+import InfoFile.*;
+import java.util.ArrayList;
+
+parser code 
+{:
+    public String archivo_name = Interfaz.PrincipalW.flagJS;
+    public static ArrayList<Comentario> listaComentario = new ArrayList<Comentario>();
+    public static ArrayList<Variables> listaVariable = new ArrayList<Variables>();
+    public static ArrayList<Clase_> listaClase = new ArrayList<Clase_>();
+    public static ArrayList<Metodo> listaMetodo = new ArrayList<Metodo>();
+    
+    public ArrayList<String> naMetodo = new ArrayList<String>(); 
+    public ArrayList<String> liParam = new ArrayList<String>(); 
+    private int contlin = 0;
+    private String nameClase, naMeto;
+
+
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/ 
+    public void syntax_error(Symbol s){ 
+        System.out.println("Error Sintáctico en la Línea " + (s.left) +
+        " Columna "+s.right+ ". No se esperaba este componente: " +s.value+"."); 
+        Interfaz.PrincipalW.listaError.add(new ErroresF(s.value.toString(),"Error sintactico no se esperaba "+s.value.toString(),String.valueOf(s.left), String.valueOf(s.right), archivo_name ));
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (s.left)+ " Columna "+s.right+". Componente " + s.value + 
+        " no reconocido."); 
+        Interfaz.PrincipalW.listaError.add(new ErroresF(s.value.toString(),"Error sintactico no se esperaba "+s.value.toString(),String.valueOf(s.left), String.valueOf(s.right), archivo_name ));
+    }  
+    public void saveClase(){
+        listaClase.add(new Clase_(archivo_name,nameClase,naMetodo, String.valueOf(contlin)));
+        nameClase = "";
+        naMetodo.clear();
+        contlin = 0;
+        
+    }
+    public void saveMetodo(){
+        listaMetodo.add(new Metodo(archivo_name,naMeto,liParam, String.valueOf(contlin)));
+        naMeto = "";
+        liParam.clear();
+        contlin = 0;
+    }
+    
+:} 
+
+terminal String llaveab, llavecer, parabierto, parcerrado;
+terminal String puntocom, signigual, coma, dospun, punto;
+terminal String clase, identi;
+terminal String VAR, lett, constant, cade, numentero, decim, truee, falsee;
+terminal String if, else;
+terminal String for, while, doo, swit, casee, defecto, salto;
+terminal String consola, logg, requeri;
+terminal String mayorq, menorq , admiracion, simband, or;
+terminal String sigmas, sigmenos, asterisco, division, porcentaje, POTE, UMENOS;
+terminal String COMENTUNO, COMENTMUL;
+
+non terminal inicio;
+non terminal instrucciones, contenido, relleno;
+non terminal variables, tipovar, valuevar;
+non terminal metodo, paramet, paramett, contmet, contmett;
+non terminal sentencia, expresion, condicion, opelog;
+non terminal ciclofor, incremento;
+non terminal ciclowhile;
+non terminal ciclodowhile;
+non terminal sentswitch, contswitch, contswitchh;
+non terminal consola;
+non terminal callmetodo, importacion, quebrar;
+non terminal multiclas, multiclass;
+
+precedence left sigmas,sigmenos,porcentaje;
+precedence left asterisco,division;
+precedence left POTE;
+precedence right UMENOS; 
+
+start with inicio; 
+
+
+inicio ::=  instrucciones 
+| error instrucciones
+| error
+;
+
+instrucciones ::= COMENTUNO:a instrucciones 
+{:contlin++;:}
+{:listaComentario.add(new Comentario(archivo_name, a.toString()));contlin++;:}
+| COMENTMUL:b instrucciones
+{:listaComentario.add(new Comentario(archivo_name, b.toString()));contlin++;:}
+| multiclas
+| error llavecer
+;
+
+multiclas ::= multiclas multiclass
+| multiclass;
+
+multiclass ::= clase IDENTIFI:a llaveab  contenido llavecer 
+{:nameClase = a; contlin++; saveClase();:}
+
+;
+
+
+contenido ::= contenido relleno
+| relleno
+;
+
+relleno ::= variables
+| metodo
+| callmetodo
+| importacion 
+| COMENTUNO:a 
+{:listaComentario.add(new Comentario(archivo_name, a.toString()));
+contlin++;:}
+| COMENTMUL:b
+{:listaComentario.add(new Comentario(archivo_name, b.toString()));
+contlin++;:}
+;
+
+metodo ::= IDENTIFI:a parabierto paramet parcerrado llaveab contmet llavecer
+{:naMetodo.add(a.toString());
+naMeto = a;
+contlin++;
+saveMetodo();:}
+| IDENTIFI:a parabierto parcerrado llaveab contmet llavecer
+{:naMetodo.add(a.toString());
+naMeto = a;
+contlin++;
+saveMetodo();:}
+;
+
+contmet ::= contmet contmett
+| contmett
+;
+
+contmett ::= variables
+| sentencia
+| ciclofor
+| ciclowhile
+| ciclodowhile
+| sentswitch
+| consola
+| callmetodo
+| importacion
+| quebrar
+| COMENTUNO:a
+{:listaComentario.add(new Comentario(archivo_name, a.toString()));
+contlin++;:}
+| COMENTMUL:b
+{:listaComentario.add(new Comentario(archivo_name, b.toString()));
+contlin++;:}
+;
+
+
+callmetodo ::= IDENTIFI parabierto paramet parcerrado puntocom {:contlin++;:}
+| IDENTIFI parabierto paramet parcerrado {:contlin++;:}
+| IDENTIFI parabierto parcerrado puntocom {:contlin++;:}
+| IDENTIFI parabierto parcerrado {:contlin++;:}
+
+;
+
+importacion ::= tipovar IDENTIFI:a signigual requeri parabierto cade parcerrado puntocom
+{:listaVariable.add(new Variables(archivo_name, a.toString())); contlin++;:}
+| tipovar IDENTIFI:a signigual requeri parabierto cade parcerrado
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| IDENTIFI:a signigual requeri parabierto cade parcerrado puntocom
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| IDENTIFI:a signigual requeri parabierto cade parcerrado 
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| requeri parabierto cade parcerrado 
+| requeri parabierto cade parcerrado puntocom 
+;
+
+
+consola ::= consola punto logg parabierto cade parcerrado puntocom {:contlin++;:}
+| consola punto logg parabierto cade parcerrado {:contlin++;:}
+| consola punto logg parabierto decim parcerrado puntocom {:contlin++;:}
+| consola punto logg parabierto decim parcerrado {:contlin++;:}
+| consola punto logg parabierto numentero parcerrado puntocom {:contlin++;:}
+| consola punto logg parabierto numentero parcerrado {:contlin++;:}
+| consola punto logg parabierto identi parcerrado puntocom {:contlin++;:}
+| consola punto logg parabierto identi parcerrado {:contlin++;:}
+
+;
+
+
+
+sentswitch ::= swit parabierto identi parcerrado llaveab contswitch llavecer {:contlin++;:}
+;
+
+contswitch ::= contswitch contswitchh 
+| contswitchh
+;
+
+contswitchh ::= casee decim dospun contmet {:contlin++;:}
+| casee identi dospun contmet {:contlin++;:}
+| casee cade dospun contmet {:contlin++;:}
+| casee numentero dospun contmet {:contlin++;:}
+| defecto dospun contmet {:contlin++;:}
+;
+
+ciclodowhile ::= doo llaveab contmet llavecer while parabierto condicion parcerrado puntocom {:contlin++;:}
+| doo llaveab contmet llavecer while parabierto condicion parcerrado {:contlin++;:}
+| doo llaveab contmet llavecer while parabierto admiracion parabierto condicion parcerrado parcerrado puntocom {:contlin++;:}
+| doo llaveab contmet llavecer while parabierto admiracion parabierto condicion parcerrado parcerrado {:contlin++;:}
+
+;
+
+ciclowhile ::= while parabierto condicion parcerrado llaveab contmet llavecer {:contlin++;:}
+| while parabierto admiracion parabierto condicion parcerrado parcerrado llaveab contmet llavecer {:contlin++;:}
+
+;
+
+ciclofor ::= for parabierto tipovar identi signigual numentero puntocom condicion puntocom incremento parcerrado llaveab contmet llavecer {:contlin++;:}
+| for parabierto tipovar identi signigual identi puntocom condicion puntocom incremento parcerrado llaveab contmet llavecer {:contlin++;:}
+| for parabierto  identi signigual numentero puntocom condicion puntocom incremento parcerrado llaveab contmet llavecer {:contlin++;:}
+| for parabierto identi signigual identi puntocom condicion puntocom incremento parcerrado llaveab contmet llavecer {:contlin++;:}
+;
+
+incremento ::= identi sigmas sigmas
+| identi sigmenos sigmenos
+;
+
+sentencia ::= if parabierto  condicion  parcerrado llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion parcerrado llaveab contmet llavecer else llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion parcerrado llaveab contmet llavecer else if parabierto condicion parcerrado llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion opelog condicion  parcerrado llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion opelog condicion parcerrado llaveab contmet llavecer else llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion opelog condicion parcerrado llaveab contmet llavecer else if parabierto condicion parcerrado llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion parcerrado llaveab contmet llavecer else if parabierto condicion opelog condicion parcerrado llaveab contmet llavecer {:contlin++;:}
+| if parabierto condicion opelog condicion parcerrado llaveab contmet llavecer else if parabierto condicion opelog condicion parcerrado llaveab contmet llavecer {:contlin++;:}
+;
+
+opelog ::= simband simband 
+| or or 
+| admiracion
+| admiracion signigual
+;
+
+expresion ::= identi
+| decim 
+| numentero
+| cade
+;
+
+condicion ::= expresion mayorq expresion
+| expresion mayorq signigual expresion
+| expresion menorq expresion
+| expresion menorq signigual expresion
+| expresion signigual signigual expresion
+| expresion admiracion signigual expresion
+;
+
+
+quebrar ::= salto {:contlin++;:}
+| salto puntocom {:contlin++;:}
+;
+
+paramet ::= paramet coma paramett
+| paramett
+;
+
+paramett ::= identi:a {:liParam.add(a.toString());:}
+| decim:a {:liParam.add(a.toString());:}
+| numentero:a {:liParam.add(a.toString());:}
+| cade:a {:liParam.add(a.toString());:}
+
+;
+
+variables ::= tipovar identi:a signigual valuevar puntocom
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| tipovar identi:a signigual valuevar
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| identi:a signigual valuevar puntocom
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| identi:a signigual valuevar
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| tipovar identi:a signigual identi puntocom
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| identi:a signigual identi puntocom
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| identi:a signigual identi
+{:listaVariable.add(new Variables(archivo_name, a.toString()));contlin++;:}
+| tipovar identi 
+| tipovar identi puntocom
+;
+
+tipovar ::= var 
+| lett 
+| constant
+;
+
+valuevar ::= numentero
+| decim
+| cade
+| truee
+| falsee
+
+;
+
+
+
+
+
+
