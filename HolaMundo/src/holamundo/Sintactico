@@ -1,0 +1,194 @@
+/*
+ * PROYECTO 1 - COMPI 1
+ */
+
+package Analizadores; 
+import java_cup.runtime.*;
+import Reportes.*;
+import Pantallas.*;
+import InfoFile.*;
+
+
+import java.util.ArrayList;
+
+parser code 
+{:
+    public static ArrayList<InfoVariables> variable = new ArrayList<InfoVariables>();
+    public static ArrayList<InfoBarras> barras = new ArrayList<InfoBarras>();
+    public static ArrayList<InfoPie> pie = new ArrayList<InfoPie>();
+    public static ArrayList<InfoLineas> lineas = new ArrayList<InfoLineas>();
+    public static ArrayList<InfoRutas> rutas = new ArrayList<InfoRutas>();
+
+    public ArrayList<String> lisejex = new ArrayList<String>(); 
+    public ArrayList<String> listvalues = new ArrayList<String>(); 
+    private String titulo1, titulo2, titulo3;
+    private String archi, ruta1, ruta2;
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/ 
+    public void syntax_error(Symbol s){ 
+        System.out.println("Error Sintáctico en la Línea " + (s.left) +
+        " Columna "+s.right+ ". No se esperaba este componente: " +s.value+"."); 
+       
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (s.left)+ " Columna "+s.right+". Componente " + s.value + 
+        " no reconocido."); 
+       
+    }  
+    public void infoBarra(){
+        barras.add(new InfoBarras(titulo1,titulo2,titulo3,lisejex, listvalues));
+        titulo1 = "";
+        titulo2 = "";
+        titulo3 = "";
+        lisejex.clear();
+        listvalues.clear();
+
+    }
+    public void infoRuta(){
+        rutas.add( new InfoRutas(ruta1, ruta2));
+        ruta1 ="";
+        ruta2 = "";
+    }
+    public void infoLinea(){
+        lineas.add(new InfoLineas(titulo2, archi));
+        titulo2 = "";
+        archi = "";
+    }
+    public void infoPie(){
+        pie.add(new InfoPie(titulo1, lisejex, listvalues));
+        titulo1 = "";
+        lisejex.clear();
+        listvalues.clear();
+    }
+
+:} 
+
+terminal String llabi, llacer, corchab, corche, parabi, parcer;
+terminal String puncoma, dospun, coma, dolar;
+terminal String reporte;
+terminal String compare, defglo;
+terminal String identificador, stri, doub, igual, numdec, nument;
+terminal String barras, titulo, ejex, values, titux, tituy;
+terminal String pie, lineas, archivo;
+terminal String textoc, score;
+
+non terminal start;;
+non terminal indicacion, extra;
+non terminal content, contarch, score;
+non terminal objeto, crear;
+non terminal barvar, barcosa, ejexlist, ejlist, valoreslista, valuelist;
+non terminal pievar, piecarac;
+non terminal linevar, linecarac;
+
+start with start;; 
+
+start; ::=  indicacion 
+| error indicacion
+| error
+;
+
+indicacion ::= reporte llabi content llacer indicacion  
+| reporte:a llabi:b content llacer:c 
+
+| error llacer
+;
+
+content ::= content extra
+| extra
+;
+
+extra ::= defglo llabi crear llacer 
+| compare parabi contarch parcer puncoma {:infoRuta();:}
+| barras llabi barvar llacer {:infoBarra();:}
+| pie:a llabi:b pievar llacer {:infoPie();:}
+| lineas llabi linevar llacer {:infoLinea();:}
+| error llacer
+| error puncoma
+;
+
+contarch ::= textoc:val coma textoc:val2 {:ruta1 = val; ruta2=val2;:}
+| error parcer
+;
+
+crear ::= crear objeto
+| objeto
+;
+
+objeto ::= stri:val identificador:val2 igual textoc:val3 puncoma
+{:objeto.add(new InfoVariables(val,val2,val3));:}
+|  doub:val identificador:val2 igual numdec:val3 puncoma 
+{:objeto.add(new InfoVariables(val,val2,val3));:}
+|  doub:val identificador:val2 igual nument:val3 puncoma 
+{:objeto.add(new InfoVariables(val,val2,val3));:}
+|  doub identificador igual score puncoma:b
+| error puncoma
+;
+
+score ::= dolar llabi score coma textoc coma textoc coma textoc  llacer
+| error llacer
+;
+
+barvar ::= barvar barcosa
+| barcosa
+;
+
+barcosa ::= titulo dospun textoc:val puncoma {:titulo1=val;:}
+| titulo dospun identificador:val puncoma  {:titulo1=val;:}                 
+| ejex dospun corchab ejexlist corche puncoma 
+| values dospun corchab valoreslista corche puncoma
+| titux dospun textoc:val puncoma {:titulo2=val;:}
+| titux dospun identificador:val puncoma {:titulo2=val;:}
+| tituy dospun textoc:val puncoma{:titulo3=val;:}
+| tituy dospun identificador:val puncoma {:titulo3=val;:}
+| error puncoma
+;
+
+ejexlist ::= ejexlist coma ejlist
+| ejlist 
+;
+
+ejlist ::= identificador:val {:lisejex.add(val);:}
+| textoc:val {:lisejex.add(val);:}
+| error parcer
+;
+
+valoreslista ::= valoreslista coma valuelist
+| valuelist
+;
+
+valuelist ::= identificador:val  {:listvalues.add(val);:}
+| numdec:val  {:listvalues.add(val);:}
+| nument:val  {:listvalues.add(val);:}
+| textoc:val  {:listvalues.add(val);:}
+| error puncoma
+;
+
+pievar ::= pievar piecarac
+| piecarac
+;
+
+piecarac ::= titulo dospun textoc:val puncoma {:titulo1 = val;:}
+| titulo dospun identificador:val puncoma {:titulo1 = val;:}
+| ejex dospun corchab ejexlist corche puncoma
+| values dospun corchab valoreslista corche puncoma
+| error puncoma
+;
+
+linevar ::= linevar linecarac
+| linecarac
+;
+
+linecarac ::= titulo dospun textoc:val puncoma {:titulo1 = val;:}
+| titulo dospun identificador:val puncoma {:titulo1 = val;:}
+| archivo dospun textoc:val puncoma {:archi = val;:}
+| archivo dospun identificador:val puncoma {:archi = val;:}
+| error puncoma
+;
